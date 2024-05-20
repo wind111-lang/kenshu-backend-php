@@ -1,8 +1,7 @@
 <?php
-namespace App\Controller;
+namespace App\app\controllers;
 
 use Core\Controller;
-use App\Model\ModelController;
 
 class WebController extends Controller{
 

@@ -1,5 +1,5 @@
 <?php
-namespace App\Model;
+namespace App\app\models;
 class ModelController{
 
 }

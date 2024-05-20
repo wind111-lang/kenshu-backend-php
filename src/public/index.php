@@ -1,8 +1,7 @@
 <?php
-require_once '../vendor/autoload.php';
+require_once './vendor/autoload.php';
 
-use Core\Router;
-use App\Controllers\WebController;
+phpinfo();
 
 $router = new Router();
 $router->route();
