@@ -1,5 +1,5 @@
 <?php
-namespace Core;
+namespace App\core;
 class Router{
     public function route(){
         //TODO: Routingをする

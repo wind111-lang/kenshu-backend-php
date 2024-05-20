@@ -1,9 +1,8 @@
 <?php
 namespace App\app\controllers;
 
-use Core\Controller;
+use App\core\Controller;
 
 class WebController extends Controller{
 
 }
-?>
