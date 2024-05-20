@@ -6,6 +6,12 @@ services:
       - "8080:80"
     volumes:
       - ./src:/var/www/html
+      - ./src/controllers:/var/www/html/controllers
+      - ./src/models:/var/www/html/models
+      - ./src/view:/var/www/html/view
+      - ./src/core:/var/www/html/core
+      - ./src/public:/var/www/html/public
+      - ./docker/php/vendor:/var/www/html/vendor
 
   postgres:
     image: postgres:latest

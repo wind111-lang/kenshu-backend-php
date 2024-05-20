@@ -1,19 +1,20 @@
 CREATE TABLE "userinfo" (
                             "id" integer PRIMARY KEY,
-                            "username" varchar UNIQUE,
-                            "email" varchar,
-                            "password" varchar,
-                            "createdAt" date
+                            "username" varchar(255) UNIQUE,
+                            "email" varchar(255),
+                            "password" varchar(255),
+                            "created_at" datetime,
+                            "updated_at" datetime
 );
 
 CREATE TABLE "posts" (
                          "id" integer PRIMARY KEY,
                          "user_id" integer,
-                         "postedAt" date,
+                         "posted_at" datetime,
+                         "updated_at" datetime,
                          "thumb_img_url" text,
-                         "title" varchar,
-                         "body" text,
-                         "selected_tags" integer
+                         "title" varchar(255),
+                         "body" text
 );
 
 CREATE TABLE "post_image" (
@@ -32,32 +33,14 @@ CREATE TABLE "tags" (
                         "tag_name" char
 );
 
+SELECT * FROM posts RIGHT OUTER JOIN post_tags ON posts.id = post_tags.post_id;
+
 ALTER TABLE "userinfo" ADD FOREIGN KEY ("id") REFERENCES "posts" ("user_id");
 
 ALTER TABLE "posts" ADD FOREIGN KEY ("id") REFERENCES "post_tags" ("post_id");
 
 ALTER TABLE "posts" ADD FOREIGN KEY ("id") REFERENCES "post_image" ("post_id");
 
-CREATE TABLE "post_tags_tags" (
-                                  "post_tags_tag_id" integer,
-                                  "tags_id" integer,
-                                  PRIMARY KEY ("post_tags_tag_id", "tags_id")
-);
-
-ALTER TABLE "post_tags_tags" ADD FOREIGN KEY ("post_tags_tag_id") REFERENCES "post_tags" ("tag_id");
-
-ALTER TABLE "post_tags_tags" ADD FOREIGN KEY ("tags_id") REFERENCES "tags" ("id");
-
-
-CREATE TABLE "posts_post_tags" (
-                                   "posts_selected_tags" integer,
-                                   "post_tags_tag_id" integer,
-                                   PRIMARY KEY ("posts_selected_tags", "post_tags_tag_id")
-);
-
-ALTER TABLE "posts_post_tags" ADD FOREIGN KEY ("posts_selected_tags") REFERENCES "posts" ("selected_tags");
-
-ALTER TABLE "posts_post_tags" ADD FOREIGN KEY ("post_tags_tag_id") REFERENCES "post_tags" ("tag_id");
-
-
 ALTER TABLE "post_image" ADD FOREIGN KEY ("img_url") REFERENCES "posts" ("thumb_img_url");
+
+ALTER TABLE "tags" ADD FOREIGN KEY ("id") REFERENCES "post_tags" ("tag_id");
