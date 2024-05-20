@@ -1,0 +1,19 @@
+services:
+  php:
+    build:
+      context: ./docker/php/
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+
+  postgres:
+    image: postgres:latest
+    environment:
+        - POSTGRES_USER=prtimes
+        - POSTGRES_PASSWORD=prtimes
+        - POSTGRES_DB=postsdb
+    volumes:
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+volumes:
+    postgres_data:
