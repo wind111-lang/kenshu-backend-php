@@ -5,7 +5,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./src/public:/var/www/html
+      - ./src/public:/var/www/html/public
       - ./src/app/controllers:/var/www/html/controllers
       - ./src/app/models:/var/www/html/models
       - ./src/app/view:/var/www/html/view
@@ -15,10 +15,10 @@ services:
   postgres:
     image: postgres:latest
     environment:
-        - POSTGRES_USER=prtimes
-        - POSTGRES_PASSWORD=prtimes
-        - POSTGRES_DB=postsdb
+      - POSTGRES_USER=prtimes
+      - POSTGRES_PASSWORD=prtimes
+      - POSTGRES_DB=postsdb
     volumes:
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
 volumes:
-    postgres_data:
+  postgres_data:

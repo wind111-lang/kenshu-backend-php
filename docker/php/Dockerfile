@@ -8,7 +8,7 @@ RUN a2enmod rewrite
 
 COPY ./php.ini /usr/local/etc/php/php.ini
 COPY ./apache2.conf /usr/local/apache2/conf/apache2.conf
-COPY ./.htaccess /usr/local/apache2/htdocs/
+COPY ./.htaccess /var/www/html/.htaccess
 COPY ./composer.json /var/www/html/composer.json
 COPY ./composer.lock /var/www/html/composer.lock
 COPY ./vendor /var/www/html/vendor
