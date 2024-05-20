@@ -1,6 +1,7 @@
 <?php
-require 'controller/WebController.php';
+require '../controller/WebController.php';
 
-phpinfo();
+$webController = new WebController();
+
 ?>
 
