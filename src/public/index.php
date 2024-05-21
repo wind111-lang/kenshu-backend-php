@@ -5,5 +5,4 @@ use App\core\Router;
 
 $router = new Router();
 $router->route();
-?>
 
