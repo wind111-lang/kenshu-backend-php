@@ -1,10 +1,13 @@
 <?php
+
 namespace Core;
-class Model{
+class Model
+{
     protected $db;
 
-    public function __construct(){
-        global $db;
-        $this->db = $db;
+    public function __construct()
+    {
+        //TODO: DB接続処理
+        $this->db;
     }
 }
