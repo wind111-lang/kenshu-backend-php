@@ -16,4 +16,4 @@ COPY ./vendor /var/www/html/vendor
 WORKDIR /var/www/html
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install
-RUN composer dump-autoload
+RUN composer dump-autoload --optimize
