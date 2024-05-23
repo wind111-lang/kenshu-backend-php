@@ -1,9 +1,10 @@
 <?php
 
-require_once '../vendor/autoload.php';
+require_once '../../vendor/autoload.php';
 
 use App\core\Router;
 
-new Router();
+$router = new Router();
+$router->route();
 
 
