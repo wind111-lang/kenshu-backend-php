@@ -6,19 +6,24 @@ services:
       - "8080:80"
     volumes:
       - ./src/public:/var/www/html/src/public
+      - ./src/config:/var/www/html/src/config
       - ./src/app/controllers:/var/www/html/src/app/controllers
       - ./src/app/models:/var/www/html/src/app/models
       - ./src/app/view:/var/www/html/src/app/view
       - ./src/core:/var/www/html/src/core
       - ./docker/php/vendor:/var/www/html/src/vendor
+    depends_on:
+        - postgres
 
   postgres:
-    image: postgres:latest
+    image: postgres:16
     environment:
       - POSTGRES_USER=prtimes
       - POSTGRES_PASSWORD=prtimes
       - POSTGRES_DB=postsdb
     volumes:
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-volumes:
-  postgres_data:
+    expose:
+      - "5432"
+    ports:
+        - "5432:5432"
