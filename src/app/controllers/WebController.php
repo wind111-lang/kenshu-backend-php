@@ -47,8 +47,3 @@ class WebController extends Controller
             echo 'Post ID Required';
         }
     }
-<<<<<<< Updated upstream
-}
-=======
-}
->>>>>>> Stashed changes
