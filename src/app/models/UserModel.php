@@ -6,8 +6,9 @@ use App\core\Model;
 
 date_default_timezone_set('Asia/Tokyo');
 
-class UserModelController extends Model
+class UserModel extends Model
 {
+    //TODO: UserのDB制御
     public function getUser()
     {
     }
