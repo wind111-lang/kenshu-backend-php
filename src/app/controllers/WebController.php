@@ -32,18 +32,3 @@ class WebController extends Controller
         header('Location: /');
         exit;
     }
-
-    public function postdetail($params)
-    {
-        $post_id = ltrim($_SERVER['QUERY_STRING'], 'post_id=');
-        if ($post_id) {
-            $post = $this->modelConn->getPostById($post_id);
-            if ($post) {
-                $this->view->render('postdetail', ['post' => $post, 'post_id' => $post_id]);
-            }else{
-                echo 'Post not found';
-            }
-        }else{
-            echo 'Post ID Required';
-        }
-    }
