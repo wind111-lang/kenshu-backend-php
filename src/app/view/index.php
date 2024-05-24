@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
     <title>Form</title>
 </head>
@@ -22,8 +22,7 @@
             <?php echo "投稿日時: ". htmlspecialchars($post['posted_at']); ?>
             <?php echo "更新日時: ". htmlspecialchars($post['updated_at']); ?>
             <br>
-            <h3><?php echo htmlspecialchars($post['title']); ?></h3>
-            <?php echo htmlspecialchars($post['body']); ?>
+            <h3><a href = "/postdetail?post_id=<?php echo htmlspecialchars($post['id']);?>"><?php echo htmlspecialchars($post['title'])?></a></h3>
         </li>
     <?php endforeach; ?>
 </ul>

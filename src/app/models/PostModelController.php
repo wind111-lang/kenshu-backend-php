@@ -16,6 +16,14 @@ class PostModelController extends Model
         return $stmt->fetchAll();
     }
 
+    public function getPostById($id): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM posts WHERE id = :id');
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
     public function sendPost($title, $body)
     {
         $id = 1;
