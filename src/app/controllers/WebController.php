@@ -3,7 +3,8 @@
 namespace App\app\controllers;
 
 use App\core\Controller;
-use App\app\models\ModelController;
+use App\app\models\PostModelController;
+use App\app\models\UserModelController;
 
 class WebController extends Controller
 {
@@ -12,7 +13,7 @@ class WebController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->modelConn = new ModelController();
+        $this->modelConn = new PostModelController();
     }
     public function index($params)
     {
@@ -25,5 +26,9 @@ class WebController extends Controller
         $this->modelConn->sendPost($params['title'], $params['body']);
         header('Location: /');
         exit;
+    }
+    public function login($params)
+    {
+
     }
 }

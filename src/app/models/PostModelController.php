@@ -6,28 +6,9 @@ use App\core\Model;
 
 date_default_timezone_set('Asia/Tokyo');
 
-class ModelController extends Model
+class PostModelController extends Model
 {
     //TODO: DB制御
-    public function getUser()
-    {
-    }
-
-    public function registerUser()
-    {
-
-    }
-
-    public function deleteUser()
-    {
-
-    }
-
-    public function updateUser()
-    {
-
-    }
-
     public function getPost(): array
     {
         $stmt = $this->db->prepare('SELECT * FROM posts ORDER BY updated_at DESC');
