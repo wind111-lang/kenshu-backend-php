@@ -3,21 +3,27 @@
 namespace App\app\controllers;
 
 use App\core\Controller;
+use App\app\models\ModelController;
 
 class WebController extends Controller
 {
+    private $modelConn;
     //TODO: 遷移処理
     public function __construct()
     {
         parent::__construct();
+        $this->modelConn = new ModelController();
     }
-    public function index()
+    public function index($params)
     {
-        echo 'Hello World';
+        $posts = $this->modelConn->getPost();
+        $this->view->render('index', ['posts' => $posts]);
     }
 
-    public function login()
+    public function post($params)
     {
-        echo 'Login';
+        $this->modelConn->sendPost($params['title'], $params['body']);
+        header('Location: /');
+        exit;
     }
 }
