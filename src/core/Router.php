@@ -8,17 +8,12 @@ class Router
 {
     public static function route()
     {
-        $requestURI = $_SERVER['REQUEST_URI'] ?? '/';
-        $url = parse_url($requestURI, PHP_URL_PATH);
-
-        // 文字列をURL Encodeする
-        $url = filter_var($url, FILTER_SANITIZE_URL);
-
-        // URLをslashで分割する
+        // URLのpathを取得
+        $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        // slashを区切り文字として分割
         $url = explode('/', $url);
-
-        // URLのpathを取得, なければindexとする
-        $method = strlen($url[1]) !== 0 ? $url[1] : 'index';
+        // pathが存在する場合はそのまま, 存在しない場合はindexにする
+        $method = $url[1] ? : 'index';
 
         if ($method === 'public') {
             // indexはpublicのindex.phpを呼び出しているため, Redirectさせる
@@ -28,8 +23,9 @@ class Router
 
         $controller = new WebController();
 
+        // 遷移先が存在するか確認
         if (method_exists($controller, $method)) {
-            // 遷移先が存在するか確認
+            // HTTPメソッドによって処理を分岐
             $httpMethod = $_SERVER['REQUEST_METHOD'];
             switch ($httpMethod) {
                 case 'POST':
