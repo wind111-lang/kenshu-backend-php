@@ -9,12 +9,16 @@ class Router
     public static function route()
     {
         $requestURI = $_SERVER['REQUEST_URI'] ?? '/';
-        $url = filter_var($requestURI, FILTER_SANITIZE_URL);
+        $url = parse_url($requestURI, PHP_URL_PATH);
+
         // 文字列をURL Encodeする
-        $url = explode('/', $url);
+        $url = filter_var($url, FILTER_SANITIZE_URL);
+
         // URLをslashで分割する
+        $url = explode('/', $url);
+
+        // URLのpathを取得, なければindexとする
         $method = strlen($url[1]) !== 0 ? $url[1] : 'index';
-        // URLの1番目の要素を取得, なければindexを取得する
 
         if ($method === 'public') {
             // indexはpublicのindex.phpを呼び出しているため, Redirectさせる

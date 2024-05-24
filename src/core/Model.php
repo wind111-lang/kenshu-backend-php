@@ -12,12 +12,13 @@ const DB_PORT = '5432';
 class Model
 {
     protected $db;
+
     public function __construct()
     {
         try {
-            $this->db = new PDO('pgsql:host='.DB_HOST.';dbname='.DB_NAME.';port='.DB_PORT.';', DB_USER, DB_PASS);
+            $this->db = new PDO('pgsql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';port=' . DB_PORT . ';', DB_USER, DB_PASS);
             $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        }catch (PDOException $e){
+        } catch (PDOException $e) {
             echo 'Connection failed: ' . $e->getMessage();
         }
     }

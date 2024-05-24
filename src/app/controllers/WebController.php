@@ -9,6 +9,7 @@ use App\app\models\UserModelController;
 class WebController extends Controller
 {
     private $modelConn;
+
     //TODO: 遷移処理
     public function __construct()
     {
@@ -46,4 +47,8 @@ class WebController extends Controller
             echo 'Post ID Required';
         }
     }
+<<<<<<< Updated upstream
 }
+=======
+}
+>>>>>>> Stashed changes
