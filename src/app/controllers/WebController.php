@@ -35,6 +35,21 @@ class WebController extends Controller
         exit;
     }
     //TODO: 詳細記事表示部分
+    public function postdetail($params)
+    {
+        $post_id = ltrim($_SERVER['QUERY_STRING'], 'post_id=');
+
+        if ($post_id) {
+            $post = $this->postModelConn->getPostById($post_id);
+            if ($post) {
+                $this->view->render('postdetail', ['post' => $post, 'post_id' => $post_id]);
+            } else {
+                echo 'Post not found';
+            }
+        } else {
+            echo 'Post ID Required';
+        }
+    }
 
     //TODO: ユーザ部分
 }
