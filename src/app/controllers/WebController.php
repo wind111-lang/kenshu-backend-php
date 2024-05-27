@@ -27,7 +27,7 @@ class WebController extends Controller
 
     public function post($params)
     {
-        if (empty($params['title']) || empty($params['body'])) {
+        if (strlen($params['title']) === 0 || strlen($params['body']) === 0){
             echo 'Title and Body are both required';
         }
         $this->postModelConn->sendPost($params['title'], $params['body']);
@@ -51,10 +51,28 @@ class WebController extends Controller
         }
     }
 
-    public function deletepost($params)
+    public function postdelete($params)
     {
-        $this->postModelConn->deletePost(intval($params['post_id']));
+        $post = $this->postModelConn->getPostById(intval($params['post_id']));
+        $this->postModelConn->deletePost($post);
         header('Location: /');
+        exit;
+    }
+
+    public function postupdate($params)
+    {
+        $post_id = $params['post_id'];
+        $post = $this->postModelConn->getPostById($post_id);
+        $this->view->render('postupdate', ['post' => $post]);
+    }
+    public function executeupdate($params)
+    {
+        $post_id = $params['post_id'];
+        if (strlen($params['title']) === 0 || strlen($params['body']) === 0){
+            echo 'Title and Body are both required';
+        }
+        $this->postModelConn->updatePost($post_id, $params['title'], $params['body']);
+        header('Location: ' . '/postdetail?post_id=' . $post_id);
         exit;
     }
 
