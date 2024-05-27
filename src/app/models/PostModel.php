@@ -55,7 +55,7 @@ class PostModel extends Model
         $stmt->execute();
 
         $stmt = $this->db->prepare('DELETE FROM posts WHERE id = :id');
-        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stmt->bindParam(':id', $post['id'], \PDO::PARAM_INT);
         $stmt->execute();
     }
 
