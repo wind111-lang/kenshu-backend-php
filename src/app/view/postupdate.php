@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <title>Post Detail</title>
+    <title>Post Update</title>
 </head>
 <body>
-<h2>投稿詳細</h2>
+<h2>投稿編集</h2>
 <ul>
     <li>
         <?php echo "投稿ID: " . htmlspecialchars($post['id']); ?>
@@ -14,11 +14,16 @@
         <br>
         <h3><?php echo "タイトル: " . htmlspecialchars($post['title']); ?></h3>
         <p><?php echo "本文: " . htmlspecialchars($post['body']); ?></p>
-        <button type="button" onclick="location.href='/postupdate?post_id=<?php echo htmlspecialchars($post['id']); ?>'">編集</button>
-        <form method="post" action="/postdelete">
+        <form method="post" action="/executeupdate">
+            <input type="hidden" name="_method" value="PATCH">
             <input type="hidden" name="post_id" value="<?php echo htmlspecialchars($post['id']); ?>">
-            <input type="hidden" name="_method" value="DELETE">
-            <input type="submit" value="削除">
+            <label for="title">タイトル</label>
+            <input type="text" id="title" name="title">
+            <br>
+            <label for="body">投稿内容</label>
+            <input type="text" id="body" name="body">
+            <br>
+            <input type="submit" value="投稿更新">
         </form>
     </li>
 </ul>
