@@ -24,11 +24,11 @@ class PostModel extends Model
         return $stmt->fetch();
     }
 
-    public function sendPost($title, $body)
+    public function sendPost($title, $body): void
     {
         $id = 1;
         $datetime = date("Y-m-d H:i:s", time());
-        $stmt = $this->db->prepare('INSERT INTO posts (user_id, posted_at, updated_at, title, body) 
+        $stmt = $this->db->prepare('INSERT INTO posts (user_id, posted_at, updated_at, title, body)
                 VALUES (:user_id, :posted_at, :updated_at, :title, :body)');
         $stmt->bindParam(':user_id', $id, \PDO::PARAM_INT);
         $stmt->bindParam(':posted_at', $datetime, \PDO::PARAM_STR);
@@ -39,12 +39,15 @@ class PostModel extends Model
 
     }
 
-    public function deletePost()
+    public function deletePost($id): void
     {
-
+        $stmt = $this->db->prepare('DELETE FROM posts WHERE id = :id');
+        $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
     }
 
-    public function updatePost()
+    public function updatePost(): array
+
     {
 
     }

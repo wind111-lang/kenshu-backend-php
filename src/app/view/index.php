@@ -21,6 +21,11 @@
             <?php echo "ユーザID: " . htmlspecialchars($post['user_id']); ?>
             <?php echo "投稿日時: " . htmlspecialchars($post['posted_at']); ?>
             <?php echo "更新日時: " . htmlspecialchars($post['updated_at']); ?>
+            <form method="post" action="/deletepost">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="post_id" value="<?php echo htmlspecialchars($post['id']); ?>">
+                <input type="submit" value="削除">
+            </form>
             <br>
             <h3>
                 <a href="/postdetail?post_id=<?php echo htmlspecialchars($post['id']); ?>"><?php echo htmlspecialchars($post['title']) ?></a>

@@ -51,5 +51,12 @@ class WebController extends Controller
         }
     }
 
+    public function deletepost($params)
+    {
+        $this->postModelConn->deletePost(intval($params['post_id']));
+        header('Location: /');
+        exit;
+    }
+
     //TODO: ユーザ部分
 }
