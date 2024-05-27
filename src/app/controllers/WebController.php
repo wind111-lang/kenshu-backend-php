@@ -5,6 +5,7 @@ namespace App\app\controllers;
 use App\core\Controller;
 use App\app\models\PostModel;
 use App\app\models\UserModel;
+use JetBrains\PhpStorm\NoReturn;
 
 class WebController extends Controller
 {
@@ -19,13 +20,13 @@ class WebController extends Controller
         $this->userModelConn = new UserModel();
     }
 
-    public function index($params)
+    public function index(): void
     {
         $posts = $this->postModelConn->getPost();
         $this->view->render('index', ['posts' => $posts]);
     }
 
-    public function post($params)
+    public function post(array $params): void
     {
         if (strlen($params['title']) === 0 || strlen($params['body']) === 0){
             echo 'Title and Body are both required';
@@ -35,7 +36,7 @@ class WebController extends Controller
         exit;
     }
     //TODO: 詳細記事表示部分
-    public function postdetail($params)
+    public function postdetail() : void
     {
         $post_id = ltrim($_SERVER['QUERY_STRING'], 'post_id=');
 
@@ -51,7 +52,7 @@ class WebController extends Controller
         }
     }
 
-    public function postdelete($params)
+    public function postdelete(array $params): void
     {
         $post = $this->postModelConn->getPostById(intval($params['post_id']));
         $this->postModelConn->deletePost($post);
@@ -59,13 +60,14 @@ class WebController extends Controller
         exit;
     }
 
-    public function postupdate($params)
+    public function postupdate(array $params): void
     {
         $post_id = $params['post_id'];
         $post = $this->postModelConn->getPostById($post_id);
         $this->view->render('postupdate', ['post' => $post]);
     }
-    public function executeupdate($params)
+
+    public function executeupdate(array $params): void
     {
         $post_id = $params['post_id'];
         if (strlen($params['title']) === 0 || strlen($params['body']) === 0){

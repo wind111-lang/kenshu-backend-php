@@ -16,7 +16,7 @@ class PostModel extends Model
         return $stmt->fetchAll();
     }
 
-    public function getPostById($id): array
+    public function getPostById(int $id): array
     {
         $stmt = $this->db->prepare('SELECT * FROM posts WHERE id = :id');
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
@@ -24,7 +24,7 @@ class PostModel extends Model
         return $stmt->fetch();
     }
 
-    public function sendPost($title, $body): void
+    public function sendPost(string $title, string $body): void
     {
         $id = 1;
         $datetime = date("Y-m-d H:i:s", time());
@@ -40,7 +40,7 @@ class PostModel extends Model
 
     }
 
-    public function deletePost($post): void
+    public function deletePost(array $post): void
     {
         $datetime = date("Y-m-d H:i:s", time());
 
@@ -59,7 +59,7 @@ class PostModel extends Model
         $stmt->execute();
     }
 
-    public function updatePost($id, $title, $body): void
+    public function updatePost(int $id, string $title, string $body): void
     {
         $datetime = date("Y-m-d H:i:s", time());
 
