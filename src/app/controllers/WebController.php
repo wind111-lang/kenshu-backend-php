@@ -6,6 +6,7 @@ use App\core\Controller;
 use App\app\models\PostModel;
 use App\app\models\UserModel;
 use JetBrains\PhpStorm\NoReturn;
+use function PHPUnit\Framework\stringContains;
 
 class WebController extends Controller
 {
@@ -129,7 +130,28 @@ class WebController extends Controller
         $email = (string)$params['email'];
         $username = (string)$params['username'];
         $password = (string)$params['password'];
-        $image = (string)$params['user_image'];
+        $image = $_FILES['user_image']['name'];
+
+        if (strlen($email) === 0 || strlen($username) === 0 || strlen($password) === 0) {
+            echo 'Email, Username and Password are all required';
+        }
+
+        $target_dir = "src/public/images/users/";
+        $target_file = $target_dir . basename($_FILES["user_image"]["name"]);
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+
+        if (!stringContains($imageFileType, 'jpg') || !stringContains($imageFileType, 'jpeg') || !stringContains($imageFileType, 'png')){
+            echo 'Sorry, only JPG, JPEG, PNG files are allowed.';
+        }
+        if (file_exists($target_file)) {
+            echo 'Sorry, file already exists.';
+        }
+        if ($_FILES["user_image"]["size"] > 500000) {
+            echo 'Sorry, your file is too large.';
+        }
+
+        move_uploaded_file($_FILES["user_image"]["tmp_name"], $target_file);
 
         $this->userModelConn->registerUser($email, $username, $password, $image);
 

@@ -27,10 +27,11 @@
     <?php foreach ($posts as $post): ?>
         <li>
             <?php echo "投稿ID: " . htmlspecialchars($post['id']); ?>
-            <?php echo "ユーザID: " . htmlspecialchars($post['user_id']); ?>
-            <?php echo "ユーザ名: " . htmlspecialchars($users[$post['user_id'] - 1]['username']); ?>
             <?php echo "投稿日時: " . htmlspecialchars($post['posted_at']); ?>
             <?php echo "更新日時: " . htmlspecialchars($post['updated_at']); ?>
+            <br>
+            <?php echo "ユーザID: " . htmlspecialchars($post['user_id']); ?>
+            <?php echo "ユーザ名: " . htmlspecialchars($users[$post['user_id'] - 1]['username']); ?>
             <?php if (isset($_SESSION['username']) && ($_SESSION['username'] == $users[$post['user_id'] - 1]['username'])): ?>
                 <form method="post" action="/postdelete">
                     <input type="hidden" name="_method" value="DELETE">

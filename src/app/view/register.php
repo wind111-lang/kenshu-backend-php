@@ -5,7 +5,7 @@
 </head>
 <body>
 <h2>新規登録</h2>
-<form action="/executeregister" method="post">
+<form action="/executeregister" method="post" enctype="multipart/form-data">
     <!--TODO: 登録フォームを作成-->
     <label for="email">Email:</label>
     <input type="email" id="email" name="email">
@@ -17,7 +17,7 @@
     <input type="password" id="password" name="password">
     <br>
     <!--TODO:画像アップロード機能を作成-->
-    <label for="image">Image:</label>
+    <label for="user_image">Image:</label>
     <input type="file" id="user_image" name="user_image">
     <br>
     <input type="submit" value="Register">
