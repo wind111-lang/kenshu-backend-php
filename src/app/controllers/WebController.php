@@ -23,30 +23,35 @@ class WebController extends Controller
     public function index(): void
     {
         $posts = $this->postModelConn->getPost();
-        $this->view->render('index', ['posts' => $posts]);
+        $users = $this->userModelConn->getUser();
+
+        $this->view->render('index', ['posts' => $posts, 'users' => $users]);
     }
 
     public function post(array $params): void
     {
         $title = (string)$params['title'];
         $body = (string)$params['body'];
+        $user = $this->userModelConn->getUserByName($_SESSION['username']);
 
-        if (strlen($title) === 0 || strlen($body) === 0){
+        if (strlen($title) === 0 || strlen($body) === 0) {
             echo 'Title and Body are both required';
         }
-        $this->postModelConn->sendPost($title, $body);
+        $this->postModelConn->sendPost($title, $body, $user['id']);
         header('Location: /');
         exit;
     }
+
     //TODO: 詳細記事表示部分
-    public function postdetail() : void
+    public function postdetail(): void
     {
         $post_id = ltrim($_SERVER['QUERY_STRING'], 'post_id=');
 
         if ($post_id) {
             $post = $this->postModelConn->getPostById($post_id);
             if ($post) {
-                $this->view->render('postdetail', ['post' => $post, 'post_id' => $post_id]);
+                $user = $this->userModelConn->getUserById($post['user_id']);
+                $this->view->render('postdetail', ['post' => $post, 'post_id' => $post_id, 'user' => $user]);
             } else {
                 echo 'Post not found';
             }
@@ -67,7 +72,8 @@ class WebController extends Controller
     {
         $post_id = (int)$params['post_id'];
         $post = $this->postModelConn->getPostById($post_id);
-        $this->view->render('postupdate', ['post' => $post]);
+        $user = $this->userModelConn->getUserById($post['user_id']);
+        $this->view->render('postupdate', ['post' => $post, 'user' => $user]);
     }
 
     public function executeupdate(array $params): void
@@ -76,7 +82,7 @@ class WebController extends Controller
         $title = (string)$params['title'];
         $body = (string)$params['body'];
 
-        if (strlen($title) === 0 || strlen($body) === 0){
+        if (strlen($title) === 0 || strlen($body) === 0) {
             echo 'Title and Body are both required';
         }
         $this->postModelConn->updatePost($post_id, $title, $body);
@@ -85,4 +91,58 @@ class WebController extends Controller
     }
 
     //TODO: ユーザ部分
+
+    public function login(): void
+    {
+        $this->view->render('login');
+    }
+
+    public function executelogin(array $params): void
+    {
+        $username = (string)$params['username'];
+        $password = (string)$params['password'];
+
+        $loginInfo = $this->userModelConn->getUserByName($username);
+
+        if (password_verify($password, $loginInfo['password'])) {
+            $_SESSION['username'] = $loginInfo['username'];
+            setcookie('username', $loginInfo['username'],
+                [
+                    'expires' => 0,
+                    'path' => '/',
+                    'samesite' => 'lax',
+                    'secure' => true,
+                ]);
+            header('Location: /');
+        }else{
+            echo 'ログインに失敗しました';
+        }
+    }
+
+    public function register(): void
+    {
+        $this->view->render('register');
+    }
+
+    public function executeregister(array $params): void
+    {
+        $email = (string)$params['email'];
+        $username = (string)$params['username'];
+        $password = (string)$params['password'];
+        $image = (string)$params['user_image'];
+
+        $this->userModelConn->registerUser($email, $username, $password, $image);
+
+        header('Location: /login');
+        exit;
+    }
+
+    public function logout(): void
+    {
+        setcookie('username', $_SESSION['username'], time() - 3600, '/');
+        session_destroy();
+
+        header('Location: /');
+        exit;
+    }
 }

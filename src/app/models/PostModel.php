@@ -3,6 +3,7 @@
 namespace App\app\models;
 
 use App\core\Model;
+use PDO;
 
 date_default_timezone_set('Asia/Tokyo');
 
@@ -13,7 +14,7 @@ class PostModel extends Model
     {
         $stmt = $this->db->prepare('SELECT * FROM posts ORDER BY updated_at DESC');
         $stmt->execute();
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getPostById(int $id): array
@@ -21,17 +22,16 @@ class PostModel extends Model
         $stmt = $this->db->prepare('SELECT * FROM posts WHERE id = :id');
         $stmt->bindParam(':id', $id, \PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function sendPost(string $title, string $body): void
+    public function sendPost(string $title, string $body, int $user_id): void
     {
-        $id = 1;
         $datetime = date("Y-m-d H:i:s", time());
 
         $stmt = $this->db->prepare('INSERT INTO posts (user_id, posted_at, updated_at, title, body)
                 VALUES (:user_id, :posted_at, :updated_at, :title, :body)');
-        $stmt->bindParam(':user_id', $id, \PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $user_id, \PDO::PARAM_INT);
         $stmt->bindParam(':posted_at', $datetime, \PDO::PARAM_STR);
         $stmt->bindParam(':updated_at', $datetime, \PDO::PARAM_STR);
         $stmt->bindParam(':title', $title, \PDO::PARAM_STR);
