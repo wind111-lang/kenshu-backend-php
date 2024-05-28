@@ -1,15 +1,16 @@
 CREATE TABLE "userinfo" (
                             "id" SERIAL PRIMARY KEY,
-                            "username" varchar(255) UNIQUE,
                             "email" varchar(255),
+                            "username" varchar(255) UNIQUE,
                             "password" varchar(255),
+                            "user_image" varchar(255),
                             "created_at" timestamp,
                             "updated_at" timestamp
 );
 
 CREATE TABLE "posts" (
                          "id" SERIAL PRIMARY KEY,
-                         "user_id" integer,
+                         "user_id" integer UNIQUE,
                          "posted_at" timestamp,
                          "updated_at" timestamp,
                          "title" varchar(255),
@@ -21,6 +22,7 @@ CREATE TABLE "log_userinfo" (
                                 "username" varchar(255) UNIQUE,
                                 "email" varchar(255),
                                 "password" varchar(255),
+                                "user_image" varchar(255),
                                 "created_at" timestamp,
                                 "deleted_at" timestamp
 );
@@ -33,3 +35,5 @@ CREATE TABLE "log_posts" (
                              "title" varchar(255),
                              "body" text
 );
+
+ALTER TABLE "posts" ADD FOREIGN KEY ("user_id") REFERENCES "userinfo" ("id");
