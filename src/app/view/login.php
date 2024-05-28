@@ -5,7 +5,7 @@
 </head>
 <body>
 <h2>ログイン</h2>
-<form action="/executelogin" method="post">
+<form action="/executeLogin" method="post">
     <!--TODO: ログインフォームを作成, CSRF対応-->
     <label for="username">Username:</label>
     <input type="text" id="username" name="username">

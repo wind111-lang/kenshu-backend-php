@@ -43,7 +43,7 @@ class WebController extends Controller
     }
 
     //TODO: 詳細記事表示部分
-    public function postdetail(): void
+    public function postDetail(): void
     {
         $post_id = ltrim($_SERVER['QUERY_STRING'], 'post_id=');
 
@@ -60,7 +60,7 @@ class WebController extends Controller
         }
     }
 
-    public function postdelete(array $params): void
+    public function postDelete(array $params): void
     {
         $post = $this->postModelConn->getPostById((int)$params['post_id']);
         $this->postModelConn->deletePost($post);
@@ -68,7 +68,7 @@ class WebController extends Controller
         exit;
     }
 
-    public function postupdate(array $params): void
+    public function postUpdate(array $params): void
     {
         $post_id = (int)$params['post_id'];
         $post = $this->postModelConn->getPostById($post_id);
@@ -76,7 +76,7 @@ class WebController extends Controller
         $this->view->render('postupdate', ['post' => $post, 'user' => $user]);
     }
 
-    public function executeupdate(array $params): void
+    public function executeUpdate(array $params): void
     {
         $post_id = (int)$params['post_id'];
         $title = (string)$params['title'];
@@ -97,7 +97,7 @@ class WebController extends Controller
         $this->view->render('login');
     }
 
-    public function executelogin(array $params): void
+    public function executeLogin(array $params): void
     {
         $username = (string)$params['username'];
         $password = (string)$params['password'];
@@ -124,7 +124,7 @@ class WebController extends Controller
         $this->view->render('register');
     }
 
-    public function executeregister(array $params): void
+    public function executeRegister(array $params): void
     {
         $email = (string)$params['email'];
         $username = (string)$params['username'];

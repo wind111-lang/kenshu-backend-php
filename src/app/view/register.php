@@ -5,7 +5,7 @@
 </head>
 <body>
 <h2>新規登録</h2>
-<form action="/executeregister" method="post">
+<form action="/executeRegister" method="post">
     <!--TODO: 登録フォームを作成-->
     <label for="email">Email:</label>
     <input type="email" id="email" name="email">
