@@ -14,7 +14,7 @@
         <br>
         <h3><?php echo "タイトル: " . htmlspecialchars($post['title']); ?></h3>
         <p><?php echo "本文: " . htmlspecialchars($post['body']); ?></p>
-        <form method="post" action="/executeupdate">
+        <form method="post" action="/executeUpdate">
             <input type="hidden" name="_method" value="PATCH">
             <input type="hidden" name="post_id" value="<?php echo htmlspecialchars($post['id']); ?>">
             <label for="title">タイトル</label>
