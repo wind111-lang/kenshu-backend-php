@@ -35,4 +35,3 @@ CREATE TABLE "log_posts" (
                              "title" varchar(255),
                              "body" text
 );
-
