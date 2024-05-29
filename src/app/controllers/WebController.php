@@ -5,8 +5,6 @@ namespace App\app\controllers;
 use App\core\Controller;
 use App\app\models\PostModel;
 use App\app\models\UserModel;
-use JetBrains\PhpStorm\NoReturn;
-use function PHPUnit\Framework\stringContains;
 
 class WebController extends Controller
 {
@@ -35,9 +33,6 @@ class WebController extends Controller
         $body = (string)$params['body'];
         $user = $this->userModelConn->getUserByName($_SESSION['username']);
 
-        if (strlen($title) === 0 || strlen($body) === 0) {
-            echo 'Title and Body are both required';
-        }
         $this->postModelConn->sendPost($title, $body, $user['id']);
         header('Location: /');
         exit;
@@ -52,7 +47,7 @@ class WebController extends Controller
             $post = $this->postModelConn->getPostById($post_id);
             if ($post) {
                 $user = $this->userModelConn->getUserById($post['user_id']);
-                $this->view->render('postdetail', ['post' => $post, 'post_id' => $post_id, 'user' => $user]);
+                $this->view->render('postDetail', ['post' => $post, 'post_id' => $post_id, 'user' => $user]);
             } else {
                 echo 'Post not found';
             }
@@ -74,7 +69,7 @@ class WebController extends Controller
         $post_id = (int)$params['post_id'];
         $post = $this->postModelConn->getPostById($post_id);
         $user = $this->userModelConn->getUserById($post['user_id']);
-        $this->view->render('postupdate', ['post' => $post, 'user' => $user]);
+        $this->view->render('postUpdate', ['post' => $post, 'user' => $user]);
     }
 
     public function executeUpdate(array $params): void
@@ -87,7 +82,7 @@ class WebController extends Controller
             echo 'Title and Body are both required';
         }
         $this->postModelConn->updatePost($post_id, $title, $body);
-        header('Location: ' . '/postdetail?post_id=' . $post_id);
+        header('Location: ' . '/postDetail?post_id=' . $post_id);
         exit;
     }
 
@@ -103,20 +98,24 @@ class WebController extends Controller
         $username = (string)$params['username'];
         $password = (string)$params['password'];
 
-        $loginInfo = $this->userModelConn->getUserByName($username);
+        try{
+            $loginInfo = $this->userModelConn->getUserByName($username);
 
-        if (password_verify($password, $loginInfo['password'])) {
-            $_SESSION['username'] = $loginInfo['username'];
-            setcookie('username', $loginInfo['username'],
-                [
-                    'expires' => 0,
-                    'path' => '/',
-                    'samesite' => 'lax',
-                    'secure' => true,
-                ]);
-            header('Location: /');
-        }else{
-            echo 'ログインに失敗しました';
+            if (password_verify($password, $loginInfo['password'])) {
+                $_SESSION['username'] = $loginInfo['username'];
+                setcookie('username', $loginInfo['username'],
+                    [
+                        'expires' => 0,
+                        'path' => '/',
+                        'samesite' => 'lax',
+                        'secure' => true,
+                    ]);
+                header('Location: /');
+            }else{
+                $this->view->render('login', ['err' => 'Invalid username or password']);
+            }
+        }catch (\TypeError $e){
+            $this->view->render('login', ['err' => 'Invalid username or password']);
         }
     }
 
@@ -130,39 +129,40 @@ class WebController extends Controller
         $email = (string)$params['email'];
         $username = (string)$params['username'];
         $password = (string)$params['password'];
-        $image = $_FILES['user_image']['name'];
+        $image = $_FILES['user_image'];
 
-        if (strlen($email) === 0 || strlen($username) === 0 || strlen($password) === 0) {
-            echo 'Email, Username and Password are all required';
-        }
-
-        $target_dir = "src/public/images/users/";
-        $target_file = $target_dir . basename($_FILES["user_image"]["name"]);
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-
-        if (!stringContains($imageFileType, 'jpg') || !stringContains($imageFileType, 'jpeg') || !stringContains($imageFileType, 'png')){
-            echo 'Sorry, only JPG, JPEG, PNG files are allowed.';
-        }
-        if (file_exists($target_file)) {
-            echo 'Sorry, file already exists.';
-        }
-        if ($_FILES["user_image"]["size"] > 500000) {
-            echo 'Sorry, your file is too large.';
-        }
-
-        move_uploaded_file($_FILES["user_image"]["tmp_name"], $target_file);
-
-        $this->userModelConn->registerUser($email, $username, $password, $image);
+        $this->fileUpload($image);
+        $this->userModelConn->registerUser($email, $username, $password, $image['name']);
 
         header('Location: /login');
         exit;
     }
 
+    public function fileUpload(array $file): void
+    {
+        $target_dir = '/var/www/html/src/images/users/';
+        $target_file = $target_dir . basename($file['name']);
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+        if ($imageFileType !== 'jpg' && $imageFileType !== 'png' && $imageFileType !== 'jpeg') {
+            echo 'Sorry, only JPG, JPEG, PNG files are allowed.';
+        }
+
+        if (file_exists($target_file)) {
+            echo 'Sorry, file already exists.';
+        }
+
+        if ($file['size'] > 500000) {
+            echo 'Sorry, your file is too large.';
+        }
+
+        move_uploaded_file($file['tmp_name'], $target_file);
+    }
+
     public function logout(): void
     {
-        setcookie('username', $_SESSION['username'], time() - 3600, '/');
         session_destroy();
+        setcookie('username', $_SESSION['username'], time() - 3600, '/');
 
         header('Location: /');
         exit;
