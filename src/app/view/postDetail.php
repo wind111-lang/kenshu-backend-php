@@ -18,9 +18,9 @@
         <p><?php echo "本文: " . htmlspecialchars($post['body']); ?></p>
         <?php if (isset($_SESSION['username']) && $_SESSION['username'] == $user['username']): ?>
             <button type="button"
-                    onclick="location.href='/postupdate?post_id=<?php echo htmlspecialchars($post['id']); ?>'">編集
+                    onclick="location.href='/postUpdate?post_id=<?php echo htmlspecialchars($post['id']); ?>'">編集
             </button>
-            <form method="post" action="/postdelete">
+            <form method="post" action="/postDelete">
                 <input type="hidden" name="post_id" value="<?php echo htmlspecialchars($post['id']); ?>">
                 <input type="hidden" name="_method" value="DELETE">
                 <input type="submit" value="削除">

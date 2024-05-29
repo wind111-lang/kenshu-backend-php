@@ -33,7 +33,7 @@
             <?php echo "ユーザID: " . htmlspecialchars($post['user_id']); ?>
             <?php echo "ユーザ名: " . htmlspecialchars($users[$post['user_id'] - 1]['username']); ?>
             <?php if (isset($_SESSION['username']) && ($_SESSION['username'] == $users[$post['user_id'] - 1]['username'])): ?>
-                <form method="post" action="/postdelete">
+                <form method="post" action="/postDelete">
                     <input type="hidden" name="_method" value="DELETE">
                     <input type="hidden" name="post_id" value="<?php echo htmlspecialchars($post['id']); ?>">
                     <input type="submit" value="削除">
@@ -41,7 +41,7 @@
             <?php endif; ?>
             <br>
             <h3>
-                <a href="/postdetail?post_id=<?php echo htmlspecialchars($post['id']); ?>"><?php echo htmlspecialchars($post['title']) ?></a>
+                <a href="/postDetail?post_id=<?php echo htmlspecialchars($post['id']); ?>"><?php echo htmlspecialchars($post['title']) ?></a>
             </h3>
         </li>
     <?php endforeach; ?>
