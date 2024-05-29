@@ -16,11 +16,11 @@
         <label for="body">投稿内容</label>
         <input type="text" id="body" name="body" required>
         <br>
-        //TODO: 複数画像アップロード機能を作成
+        <!--TODO: 複数画像アップロード機能を作成-->
         <label for="post_image">画像:</label>
         <input type="file" id="post_images" name="post_images[]" accept="image/*" multiple required>
         <br>
-        //TODO: タグ機能を作成
+        <!--TODO: タグ機能を作成-->
 
         <input type="submit" value="Submit">
     </form>
