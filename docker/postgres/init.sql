@@ -36,4 +36,3 @@ CREATE TABLE "log_posts" (
                              "body" text
 );
 
-ALTER TABLE "posts" ADD FOREIGN KEY ("user_id") REFERENCES "userinfo" ("id");
