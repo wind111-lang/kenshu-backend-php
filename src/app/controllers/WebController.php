@@ -156,17 +156,8 @@ class WebController extends Controller
         $password = (string)$params['password'];
         $image = $_FILES['user_image'];
 
-        $this->fileUpload($image);
-        $this->userModelConn->registerUser($email, $username, $password, $image['name']);
-
-        header('Location: /login');
-        exit;
-    }
-
-    public function fileUpload(array $file): void
-    {
         $targetDir = '/var/www/html/src/images/users/';
-        $targetFile = $targetDir . basename($file['name']);
+        $targetFile = $targetDir . basename($image['name']);
         $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
 
@@ -179,15 +170,26 @@ class WebController extends Controller
                 throw new \Exception('Sorry, file already exists.');
             }
 
-            if ($file['size'] > 500000) {
+            if ($image['size'] > 500000) {
                 throw new \Exception('Sorry, your file is too large.');
+            }
+            if (!move_uploaded_file($image['tmp_name'], $targetFile)) {
+                throw new \Exception('Sorry, there was an error uploading your file.');
             }
         } catch (\Exception $e) {
             $this->view->render('register', ['err' => $e->getMessage()]);
         }
 
-        move_uploaded_file($file['tmp_name'], $targetFile);
+        try {
+            $this->userModelConn->registerUser($email, $username, $password, $image['name']);
+        }catch (\PDOException $e) {
+            $this->view->render('register', ['err' => $e->getMessage()]);
+        }
+
+        header('Location: /login');
+        exit;
     }
+
 
     public function logout(): void
     {
