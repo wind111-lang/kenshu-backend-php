@@ -5,6 +5,9 @@
 </head>
 <body>
 <h2>新規登録</h2>
+<?php if (isset($err)): ?>
+    <p><?php echo $err; ?></p>
+<?php endif; ?>
 <form action="/executeRegister" method="post" enctype="multipart/form-data">
     <!--TODO: 登録フォームを作成-->
     <label for="email">Email:</label>

@@ -28,6 +28,9 @@
     <a href="/login">ログイン</a>
     <a href="/register">新規登録</a>
 <?php endif; ?>
+<?php if (isset($err)): ?>
+    <p><?php echo $err; ?></p>
+<?php endif; ?>
 　　<h2>投稿一覧</h2>
 <ul>
     <?php foreach ($posts as $post): ?>
