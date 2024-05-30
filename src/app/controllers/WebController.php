@@ -169,7 +169,6 @@ class WebController extends Controller
             $this->view->render('register', ['err' => $e->getMessage()]);
         }
 
-
         header('Location: /login');
         exit;
     }
