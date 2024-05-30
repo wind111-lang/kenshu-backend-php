@@ -42,6 +42,7 @@ class WebController extends Controller
             $this->postModelConn->sendPost($title, $body, $user['id']);
         } catch (\PDOException $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
+            return;
         }
 
         header('Location: /');
@@ -77,6 +78,7 @@ class WebController extends Controller
             $this->postModelConn->deletePost($post);
         } catch (\PDOException $e) {
             $this->view->render('postDetail', ['err' => $e->getMessage()]);
+            return;
         }
 
         header('Location: /');
@@ -159,15 +161,10 @@ class WebController extends Controller
 
         try{
             $this->fileUpload($image);
+            $this->userModelConn->registerUser($email, $username, $password, $image['name']);
         }catch (\Exception $e){
             $this->view->render('register', ['err' => $e->getMessage()]);
             return;
-        }
-
-        try {
-            $this->userModelConn->registerUser($email, $username, $password, $image['name']);
-        } catch (\PDOException $e) {
-            $this->view->render('register', ['err' => $e->getMessage()]);
         }
 
         header('Location: /login');
