@@ -161,6 +161,7 @@ class WebController extends Controller
             $this->fileUpload($image);
         }catch (\Exception $e){
             $this->view->render('register', ['err' => $e->getMessage()]);
+            return;
         }
 
         try {
