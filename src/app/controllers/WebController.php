@@ -5,7 +5,6 @@ namespace App\app\controllers;
 use App\core\Controller;
 use App\app\models\PostModel;
 use App\app\models\UserModel;
-use http\Exception;
 
 class WebController extends Controller
 {
@@ -25,7 +24,7 @@ class WebController extends Controller
         try {
             $posts = $this->postModelConn->getPost();
             $users = $this->userModelConn->getUser();
-        } catch (\PDOException $e) {
+        } catch (\UnexpectedValueException $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
         }
 
@@ -40,7 +39,7 @@ class WebController extends Controller
         try {
             $user = $this->userModelConn->getUserByName($_SESSION['username']);
             $this->postModelConn->sendPost($title, $body, $user['id']);
-        } catch (\PDOException $e) {
+        } catch (\RuntimeException $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
             return;
         }
@@ -61,10 +60,10 @@ class WebController extends Controller
                     $user = $this->userModelConn->getUserById($post['user_id']);
                     $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user]);
                 } else {
-                    throw new \PDOException('Invalid post ID');
+                    throw new \UnexpectedValueException('Invalid post ID');
                 }
             } else {
-                throw new \PDOException('Invalid post ID');
+                throw new \UnexpectedValueException('Invalid post ID');
             }
         } catch (\PDOException $e) {
             $this->view->render('postDetail', ['err' => $e->getMessage()]);
@@ -76,7 +75,7 @@ class WebController extends Controller
         try {
             $post = $this->postModelConn->getPostById((int)$params['post_id']);
             $this->postModelConn->deletePost($post);
-        } catch (\PDOException $e) {
+        } catch (\RuntimeException $e) {
             $this->view->render('postDetail', ['err' => $e->getMessage()]);
             return;
         }
@@ -91,7 +90,7 @@ class WebController extends Controller
         try {
             $post = $this->postModelConn->getPostById($postId);
             $user = $this->userModelConn->getUserById($post['user_id']);
-        } catch (\PDOException $e) {
+        } catch (\UnexpectedValueException $e) {
             $this->view->render('postUpdate', ['err' => $e->getMessage()]);
         }
 
@@ -106,7 +105,7 @@ class WebController extends Controller
 
         try {
             $this->postModelConn->updatePost($postId, $title, $body);
-        } catch (\PDOException $e) {
+        } catch (\UnexpectedValueException $e) {
             $this->view->render('postUpdate', ['err' => $e->getMessage()]);
         }
 
@@ -140,7 +139,7 @@ class WebController extends Controller
                     ]);
                 header('Location: /');
             }
-        } catch (\PDOException $e) {
+        } catch (\RuntimeException $e) {
             $this->view->render('login', ['err' => $e->getMessage()]);
         } catch (\TypeError $e) {
             $this->view->render('login', ['err' => $e->getMessage()]);
@@ -164,7 +163,6 @@ class WebController extends Controller
             $this->userModelConn->registerUser($email, $username, $password, $image['name']);
         }catch (\Exception $e){
             $this->view->render('register', ['err' => $e->getMessage()]);
-            return;
         }
 
         header('Location: /login');
