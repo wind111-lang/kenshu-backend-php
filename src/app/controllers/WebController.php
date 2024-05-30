@@ -5,6 +5,7 @@ namespace App\app\controllers;
 use App\core\Controller;
 use App\app\models\PostModel;
 use App\app\models\UserModel;
+use http\Exception;
 
 class WebController extends Controller
 {
@@ -156,8 +157,27 @@ class WebController extends Controller
         $password = (string)$params['password'];
         $image = $_FILES['user_image'];
 
+        $err = $this->fileUpload($image);
+
+        if ($err) {
+            $this->view->render('register', ['err' => $err->getMessage()]);
+        }
+
+        try {
+            $this->userModelConn->registerUser($email, $username, $password, $image['name']);
+        }catch (\PDOException $e) {
+            $this->view->render('register', ['err' => $e->getMessage()]);
+        }
+
+
+        header('Location: /login');
+        exit;
+    }
+
+    public function fileUpload(array $file): ?\Exception
+    {
         $targetDir = '/var/www/html/src/images/users/';
-        $targetFile = $targetDir . basename($image['name']);
+        $targetFile = $targetDir . basename($file['name']);
         $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
 
@@ -170,26 +190,18 @@ class WebController extends Controller
                 throw new \Exception('Sorry, file already exists.');
             }
 
-            if ($image['size'] > 500000) {
+            if ($file['size'] > 500000) {
                 throw new \Exception('Sorry, your file is too large.');
             }
-            if (!move_uploaded_file($image['tmp_name'], $targetFile)) {
+            if (!move_uploaded_file($file['tmp_name'], $targetFile)) {
                 throw new \Exception('Sorry, there was an error uploading your file.');
             }
         } catch (\Exception $e) {
-            $this->view->render('register', ['err' => $e->getMessage()]);
+            return $e;
         }
 
-        try {
-            $this->userModelConn->registerUser($email, $username, $password, $image['name']);
-        }catch (\PDOException $e) {
-            $this->view->render('register', ['err' => $e->getMessage()]);
-        }
-
-        header('Location: /login');
-        exit;
+        return null;
     }
-
 
     public function logout(): void
     {
