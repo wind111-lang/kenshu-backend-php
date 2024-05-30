@@ -17,7 +17,10 @@
         <input type="text" id="body" name="body" required>
         <br>
         <!--TODO: 複数画像アップロード機能を作成-->
-        <label for="post_image">画像:</label>
+        <label for="thumb_image">サムネイル画像:</label>
+        <input type="file" id="thumb_image" name="thumb_image" accept="image/*" required>
+        <br>
+        <label for="post_image">記事画像:</label>
         <input type="file" id="post_images" name="post_images[]" accept="image/*" multiple required>
         <br>
         <!--TODO: タグ機能を作成-->

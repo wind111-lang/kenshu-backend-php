@@ -35,11 +35,34 @@ class WebController extends Controller
     {
         $title = (string)$params['title'];
         $body = (string)$params['body'];
+        $postImages = $_FILES['post_images'];
+        $thumbImage = $_FILES['thumb_image'];
+
+        $targetPostDir = '/var/www/html/src/images/posts/post';
+        $targetThumbDir = '/var/www/html/src/images/posts/thumb';
+
+        $uploadedPostImages = [];
 
         try {
+            foreach ($postImages['name'] as $index => $postImage) {
+
+                $file = [
+                    'name' => $postImages['name'][$index],
+                    'type' => $postImages['type'][$index],
+                    'tmp_name' => $postImages['tmp_name'][$index],
+                    'error' => $postImages['error'][$index],
+                    'size' => $postImages['size'][$index],
+                ];
+                $this->fileUpload($file, $targetPostDir);
+                $uploadedPostImages[] = $file['name'];
+            }
+
+            $this->fileUpload($thumbImage, $targetThumbDir);
+
             $user = $this->userModelConn->getUserByName($_SESSION['username']);
-            $this->postModelConn->sendPost($title, $body, $user['id']);
-        } catch (\RuntimeException $e) {
+            $this->postModelConn->sendPost($title, $body, $user['id'], $thumbImage['name'], $uploadedPostImages);
+
+        } catch (\Exception $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
             return;
         }
@@ -65,7 +88,7 @@ class WebController extends Controller
             } else {
                 throw new \UnexpectedValueException('Invalid post ID');
             }
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             $this->view->render('postDetail', ['err' => $e->getMessage()]);
         }
     }
@@ -141,6 +164,7 @@ class WebController extends Controller
             }
         } catch (\RuntimeException $e) {
             $this->view->render('login', ['err' => $e->getMessage()]);
+            return;
         } catch (\TypeError $e) {
             $this->view->render('login', ['err' => $e->getMessage()]);
         }
@@ -158,20 +182,22 @@ class WebController extends Controller
         $password = (string)$params['password'];
         $image = $_FILES['user_image'];
 
+        $targetDir = '/var/www/html/src/images/users/';
+
         try{
-            $this->fileUpload($image);
+            $this->fileUpload($image, $targetDir);
             $this->userModelConn->registerUser($email, $username, $password, $image['name']);
         }catch (\Exception $e){
             $this->view->render('register', ['err' => $e->getMessage()]);
+            return;
         }
 
         header('Location: /login');
         exit;
     }
 
-    public function fileUpload(array $file): void
+    public function fileUpload(array $file, string $targetDir): void
     {
-        $targetDir = '/var/www/html/src/images/users/';
         $targetFile = $targetDir . basename($file['name']);
         $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
@@ -184,13 +210,12 @@ class WebController extends Controller
             throw new \Exception('Sorry, file already exists.');
         }
 
-        if ($file['size'] > 500000) {
+        if ($file['size'] > 5000000) {
             throw new \Exception('Sorry, your file is too large.');
         }
         if (!move_uploaded_file($file['tmp_name'], $targetFile)) {
             throw new \Exception('Sorry, there was an error uploading your file.');
         }
-
     }
 
     public function logout(): void
