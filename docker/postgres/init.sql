@@ -35,5 +35,3 @@ CREATE TABLE "log_posts" (
                              "title" varchar(255),
                              "body" text
 );
-
-ALTER TABLE "posts" ADD FOREIGN KEY ("user_id") REFERENCES "userinfo" ("id");

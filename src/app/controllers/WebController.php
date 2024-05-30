@@ -5,7 +5,6 @@ namespace App\app\controllers;
 use App\core\Controller;
 use App\app\models\PostModel;
 use App\app\models\UserModel;
-use JetBrains\PhpStorm\NoReturn;
 
 class WebController extends Controller
 {
@@ -22,8 +21,12 @@ class WebController extends Controller
 
     public function index(): void
     {
-        $posts = $this->postModelConn->getPost();
-        $users = $this->userModelConn->getUser();
+        try {
+            $posts = $this->postModelConn->getPost();
+            $users = $this->userModelConn->getUser();
+        } catch (\UnexpectedValueException $e) {
+            $this->view->render('index', ['err' => $e->getMessage()]);
+        }
 
         $this->view->render('index', ['posts' => $posts, 'users' => $users]);
     }
@@ -32,12 +35,15 @@ class WebController extends Controller
     {
         $title = (string)$params['title'];
         $body = (string)$params['body'];
-        $user = $this->userModelConn->getUserByName($_SESSION['username']);
 
-        if (strlen($title) === 0 || strlen($body) === 0) {
-            echo 'Title and Body are both required';
+        try {
+            $user = $this->userModelConn->getUserByName($_SESSION['username']);
+            $this->postModelConn->sendPost($title, $body, $user['id']);
+        } catch (\RuntimeException $e) {
+            $this->view->render('index', ['err' => $e->getMessage()]);
+            return;
         }
-        $this->postModelConn->sendPost($title, $body, $user['id']);
+
         header('Location: /');
         exit;
     }
@@ -45,48 +51,65 @@ class WebController extends Controller
     //TODO: 詳細記事表示部分
     public function postDetail(): void
     {
-        $post_id = ltrim($_SERVER['QUERY_STRING'], 'post_id=');
+        $postId = ltrim($_SERVER['QUERY_STRING'], 'post_id=');
 
-        if ($post_id) {
-            $post = $this->postModelConn->getPostById($post_id);
-            if ($post) {
-                $user = $this->userModelConn->getUserById($post['user_id']);
-                $this->view->render('postdetail', ['post' => $post, 'post_id' => $post_id, 'user' => $user]);
+        try {
+            if ($postId) {
+                $post = $this->postModelConn->getPostById($postId);
+                if ($post) {
+                    $user = $this->userModelConn->getUserById($post['user_id']);
+                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user]);
+                } else {
+                    throw new \UnexpectedValueException('Invalid post ID');
+                }
             } else {
-                echo 'Post not found';
+                throw new \UnexpectedValueException('Invalid post ID');
             }
-        } else {
-            echo 'Post ID Required';
+        } catch (\PDOException $e) {
+            $this->view->render('postDetail', ['err' => $e->getMessage()]);
         }
     }
 
     public function postDelete(array $params): void
     {
-        $post = $this->postModelConn->getPostById((int)$params['post_id']);
-        $this->postModelConn->deletePost($post);
+        try {
+            $post = $this->postModelConn->getPostById((int)$params['post_id']);
+            $this->postModelConn->deletePost($post);
+        } catch (\RuntimeException $e) {
+            $this->view->render('postDetail', ['err' => $e->getMessage()]);
+            return;
+        }
+
         header('Location: /');
         exit;
     }
 
     public function postUpdate(array $params): void
     {
-        $post_id = (int)$params['post_id'];
-        $post = $this->postModelConn->getPostById($post_id);
-        $user = $this->userModelConn->getUserById($post['user_id']);
-        $this->view->render('postupdate', ['post' => $post, 'user' => $user]);
+        $postId = (int)$params['post_id'];
+        try {
+            $post = $this->postModelConn->getPostById($postId);
+            $user = $this->userModelConn->getUserById($post['user_id']);
+        } catch (\UnexpectedValueException $e) {
+            $this->view->render('postUpdate', ['err' => $e->getMessage()]);
+        }
+
+        $this->view->render('postUpdate', ['post' => $post, 'user' => $user]);
     }
 
     public function executeUpdate(array $params): void
     {
-        $post_id = (int)$params['post_id'];
+        $postId = (int)$params['post_id'];
         $title = (string)$params['title'];
         $body = (string)$params['body'];
 
-        if (strlen($title) === 0 || strlen($body) === 0) {
-            echo 'Title and Body are both required';
+        try {
+            $this->postModelConn->updatePost($postId, $title, $body);
+        } catch (\UnexpectedValueException $e) {
+            $this->view->render('postUpdate', ['err' => $e->getMessage()]);
         }
-        $this->postModelConn->updatePost($post_id, $title, $body);
-        header('Location: ' . '/postdetail?post_id=' . $post_id);
+
+        header('Location: ' . '/postDetail?post_id=' . $postId);
         exit;
     }
 
@@ -102,20 +125,24 @@ class WebController extends Controller
         $username = (string)$params['username'];
         $password = (string)$params['password'];
 
-        $loginInfo = $this->userModelConn->getUserByName($username);
+        try {
+            $loginInfo = $this->userModelConn->getUserByName($username);
 
-        if (password_verify($password, $loginInfo['password'])) {
-            $_SESSION['username'] = $loginInfo['username'];
-            setcookie('username', $loginInfo['username'],
-                [
-                    'expires' => 0,
-                    'path' => '/',
-                    'samesite' => 'lax',
-                    'secure' => true,
-                ]);
-            header('Location: /');
-        }else{
-            echo 'ログインに失敗しました';
+            if (password_verify($password, $loginInfo['password'])) {
+                $_SESSION['username'] = $loginInfo['username'];
+                setcookie('username', $loginInfo['username'],
+                    [
+                        'expires' => 0,
+                        'path' => '/',
+                        'samesite' => 'lax',
+                        'secure' => true,
+                    ]);
+                header('Location: /');
+            }
+        } catch (\RuntimeException $e) {
+            $this->view->render('login', ['err' => $e->getMessage()]);
+        } catch (\TypeError $e) {
+            $this->view->render('login', ['err' => $e->getMessage()]);
         }
     }
 
@@ -129,18 +156,47 @@ class WebController extends Controller
         $email = (string)$params['email'];
         $username = (string)$params['username'];
         $password = (string)$params['password'];
-        $image = (string)$params['user_image'];
+        $image = $_FILES['user_image'];
 
-        $this->userModelConn->registerUser($email, $username, $password, $image);
+        try{
+            $this->fileUpload($image);
+            $this->userModelConn->registerUser($email, $username, $password, $image['name']);
+        }catch (\Exception $e){
+            $this->view->render('register', ['err' => $e->getMessage()]);
+        }
 
         header('Location: /login');
         exit;
     }
 
+    public function fileUpload(array $file): void
+    {
+        $targetDir = '/var/www/html/src/images/users/';
+        $targetFile = $targetDir . basename($file['name']);
+        $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
+
+
+        if ($imageFileType !== 'jpg' && $imageFileType !== 'png' && $imageFileType !== 'jpeg') {
+            throw new \Exception('Sorry, only JPG, JPEG, PNG files are allowed.');
+        }
+
+        if (file_exists($targetFile)) {
+            throw new \Exception('Sorry, file already exists.');
+        }
+
+        if ($file['size'] > 500000) {
+            throw new \Exception('Sorry, your file is too large.');
+        }
+        if (!move_uploaded_file($file['tmp_name'], $targetFile)) {
+            throw new \Exception('Sorry, there was an error uploading your file.');
+        }
+
+    }
+
     public function logout(): void
     {
-        setcookie('username', $_SESSION['username'], time() - 3600, '/');
         session_destroy();
+        setcookie('username', $_SESSION['username'], time() - 3600, '/');
 
         header('Location: /');
         exit;

@@ -4,6 +4,9 @@
     <title>Post Update</title>
 </head>
 <body>
+<?php if (isset($err)): ?>
+<p><?php echo $err; ?></p>
+<?php endif; ?>
 <h2>投稿編集</h2>
 <ul>
     <li>
