@@ -21,7 +21,21 @@
         <input type="file" id="post_images" name="post_images[]" accept="image/*" multiple required>
         <br>
         <!--TODO: タグ機能を作成-->
-
+        <label for="tags">タグ:</label>
+        <br>
+        総合<input type="checkbox" id="tags" name="tags[]" value="総合">
+        テクノロジー<input type="checkbox" id="tags" name="tags[]" value="テクノロジー">
+        モバイル<input type="checkbox" id="tags" name="tags[]" value="モバイル">
+        アプリ<input type="checkbox" id="tags" name="tags[]" value="アプリ">
+        エンタメ<input type="checkbox" id="tags" name="tags[]" value="エンタメ">
+        ビューティー<input type="checkbox" id="tags" name="tags[]" value="ビューティー">
+        <br>
+        ファッション<input type="checkbox" id="tags" name="tags[]" value="ファッション">
+        ライフスタイル<input type="checkbox" id="tags" name="tags[]" value="ライフスタイル">
+        ビジネス<input type="checkbox" id="tags" name="tags[]" value="ビジネス">
+        グルメ<input type="checkbox" id="tags" name="tags[]" value="グルメ">
+        スポーツ<input type="checkbox" id="tags" name="tags[]" value="スポーツ">
+        <br>
         <input type="submit" value="Submit">
     </form>
 <?php else: ?>
