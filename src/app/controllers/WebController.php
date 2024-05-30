@@ -21,10 +21,10 @@ class WebController extends Controller
 
     public function index(): void
     {
-        try{
+        try {
             $posts = $this->postModelConn->getPost();
             $users = $this->userModelConn->getUser();
-        }catch (\PDOException $e) {
+        } catch (\UnexpectedValueException $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
         }
 
@@ -39,8 +39,9 @@ class WebController extends Controller
         try {
             $user = $this->userModelConn->getUserByName($_SESSION['username']);
             $this->postModelConn->sendPost($title, $body, $user['id']);
-        }catch(\PDOException $e){
+        } catch (\RuntimeException $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
+            return;
         }
 
         header('Location: /');
@@ -59,10 +60,10 @@ class WebController extends Controller
                     $user = $this->userModelConn->getUserById($post['user_id']);
                     $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user]);
                 } else {
-                    throw new \PDOException('Invalid post ID');
+                    throw new \UnexpectedValueException('Invalid post ID');
                 }
             } else {
-                throw new \PDOException('Invalid post ID');
+                throw new \UnexpectedValueException('Invalid post ID');
             }
         } catch (\PDOException $e) {
             $this->view->render('postDetail', ['err' => $e->getMessage()]);
@@ -71,11 +72,12 @@ class WebController extends Controller
 
     public function postDelete(array $params): void
     {
-        try{
+        try {
             $post = $this->postModelConn->getPostById((int)$params['post_id']);
             $this->postModelConn->deletePost($post);
-        }catch(\PDOException $e){
+        } catch (\RuntimeException $e) {
             $this->view->render('postDetail', ['err' => $e->getMessage()]);
+            return;
         }
 
         header('Location: /');
@@ -88,9 +90,9 @@ class WebController extends Controller
         try {
             $post = $this->postModelConn->getPostById($postId);
             $user = $this->userModelConn->getUserById($post['user_id']);
-        }catch (\PDOException $e) {
+        } catch (\UnexpectedValueException $e) {
             $this->view->render('postUpdate', ['err' => $e->getMessage()]);
-            }
+        }
 
         $this->view->render('postUpdate', ['post' => $post, 'user' => $user]);
     }
@@ -101,9 +103,9 @@ class WebController extends Controller
         $title = (string)$params['title'];
         $body = (string)$params['body'];
 
-        try{
+        try {
             $this->postModelConn->updatePost($postId, $title, $body);
-        }catch (\PDOException $e) {
+        } catch (\UnexpectedValueException $e) {
             $this->view->render('postUpdate', ['err' => $e->getMessage()]);
         }
 
@@ -137,7 +139,7 @@ class WebController extends Controller
                     ]);
                 header('Location: /');
             }
-        } catch (\PDOException $e) {
+        } catch (\RuntimeException $e) {
             $this->view->render('login', ['err' => $e->getMessage()]);
         } catch (\TypeError $e) {
             $this->view->render('login', ['err' => $e->getMessage()]);
@@ -156,8 +158,12 @@ class WebController extends Controller
         $password = (string)$params['password'];
         $image = $_FILES['user_image'];
 
-        $this->fileUpload($image);
-        $this->userModelConn->registerUser($email, $username, $password, $image['name']);
+        try{
+            $this->fileUpload($image);
+            $this->userModelConn->registerUser($email, $username, $password, $image['name']);
+        }catch (\Exception $e){
+            $this->view->render('register', ['err' => $e->getMessage()]);
+        }
 
         header('Location: /login');
         exit;
@@ -170,23 +176,21 @@ class WebController extends Controller
         $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
 
-        try {
-            if ($imageFileType !== 'jpg' && $imageFileType !== 'png' && $imageFileType !== 'jpeg') {
-                throw new \Exception('Sorry, only JPG, JPEG, PNG files are allowed.');
-            }
-
-            if (file_exists($targetFile)) {
-                throw new \Exception('Sorry, file already exists.');
-            }
-
-            if ($file['size'] > 500000) {
-                throw new \Exception('Sorry, your file is too large.');
-            }
-        } catch (\Exception $e) {
-            $this->view->render('register', ['err' => $e->getMessage()]);
+        if ($imageFileType !== 'jpg' && $imageFileType !== 'png' && $imageFileType !== 'jpeg') {
+            throw new \Exception('Sorry, only JPG, JPEG, PNG files are allowed.');
         }
 
-        move_uploaded_file($file['tmp_name'], $targetFile);
+        if (file_exists($targetFile)) {
+            throw new \Exception('Sorry, file already exists.');
+        }
+
+        if ($file['size'] > 500000) {
+            throw new \Exception('Sorry, your file is too large.');
+        }
+        if (!move_uploaded_file($file['tmp_name'], $targetFile)) {
+            throw new \Exception('Sorry, there was an error uploading your file.');
+        }
+
     }
 
     public function logout(): void
