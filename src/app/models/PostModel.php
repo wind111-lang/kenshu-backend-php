@@ -27,7 +27,7 @@ class PostModel extends Model
 
     public function getLatestId(): array
     {
-        $stmt = $this->db->prepare('SELECT * FROM posts ORDER BY id DESC LIMIT 1');
+        $stmt = $this->db->prepare('SELECT id FROM posts DESC LIMIT 1');
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -58,6 +58,14 @@ class PostModel extends Model
         $stmt->bindParam(':deleted_at', $datetime, \PDO::PARAM_STR);
         $stmt->bindParam(':title', $post['title'], \PDO::PARAM_STR);
         $stmt->bindParam(':body', $post['body'], \PDO::PARAM_STR);
+        $stmt->execute();
+
+        $stmt = $this->db->prepare('DELETE FROM thumb_image WHERE post_id = :id');
+        $stmt->bindParam(':id', $post['id'], \PDO::PARAM_INT);
+        $stmt->execute();
+
+        $stmt = $this->db->prepare('DELETE FROM post_images WHERE post_id = :id');
+        $stmt->bindParam(':id', $post['id'], \PDO::PARAM_INT);
         $stmt->execute();
 
         $stmt = $this->db->prepare('DELETE FROM posts WHERE id = :id');

@@ -15,7 +15,6 @@ class WebController extends Controller
     const THUMB_IMAGE_DIR = '/var/www/html/src/images/posts/thumb/';
     const USER_IMAGE_DIR = '/var/www/html/src/images/users/';
 
-
     //TODO: 遷移処理
     public function __construct()
     {
