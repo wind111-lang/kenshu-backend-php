@@ -11,6 +11,10 @@ class WebController extends Controller
     private $postModelConn;
     private $userModelConn;
 
+    const POST_IMAGE_DIR = '/var/www/html/src/images/posts/post/';
+    const THUMB_IMAGE_DIR = '/var/www/html/src/images/posts/thumb/';
+    const USER_IMAGE_DIR = '/var/www/html/src/images/users/';
+
     //TODO: 遷移処理
     public function __construct()
     {
@@ -35,11 +39,42 @@ class WebController extends Controller
     {
         $title = (string)$params['title'];
         $body = (string)$params['body'];
+        $postImages = $_FILES['post_images'];
+        $thumbImage = $_FILES['thumb_image'];
 
         try {
             $user = $this->userModelConn->getUserByName($_SESSION['username']);
             $this->postModelConn->sendPost($title, $body, $user['id']);
-        } catch (\RuntimeException $e) {
+
+            $post = $this->postModelConn->getLatestId();
+
+            if($post['id']){
+                $postId = $post['id'];
+            }else{
+                $postId = 1;
+            }
+
+
+            $this->fileUpload($thumbImage, self::THUMB_IMAGE_DIR);
+            $this->postModelConn->sendThumbImage($postId, $thumbImage['name']);
+
+
+            $postCount = count($_FILES['post_images']['name']);
+
+            for ($image=0; $image < $postCount; $image++) {
+                $file = [
+                    'name' => $postImages['name'][$image],
+                    'type' => $postImages['type'][$image],
+                    'tmp_name' => $postImages['tmp_name'][$image],
+                    'error' => $postImages['error'][$image],
+                    'size' => $postImages['size'][$image],
+                ];
+
+                $this->fileUpload($file, self::POST_IMAGE_DIR);
+                $this->postModelConn->sendPostImage($postId, $file['name']);
+            }
+
+        } catch (\Exception $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
             return;
         }
@@ -58,14 +93,16 @@ class WebController extends Controller
                 $post = $this->postModelConn->getPostById($postId);
                 if ($post) {
                     $user = $this->userModelConn->getUserById($post['user_id']);
-                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user]);
+                    $thumb = $this->postModelConn->getThumbImageFromPostId($postId);
+                    $images = $this->postModelConn->getPostImageFromPostId($postId);
+                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user, 'thumb' => $thumb, 'images' => $images]);
                 } else {
                     throw new \UnexpectedValueException('Invalid post ID');
                 }
             } else {
-                throw new \UnexpectedValueException('Invalid post ID');
+                throw new \UnexpectedValueException('post ID is not set');
             }
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             $this->view->render('postDetail', ['err' => $e->getMessage()]);
         }
     }
@@ -107,6 +144,7 @@ class WebController extends Controller
             $this->postModelConn->updatePost($postId, $title, $body);
         } catch (\UnexpectedValueException $e) {
             $this->view->render('postUpdate', ['err' => $e->getMessage()]);
+            return;
         }
 
         header('Location: ' . '/postDetail?post_id=' . $postId);
@@ -141,6 +179,7 @@ class WebController extends Controller
             }
         } catch (\RuntimeException $e) {
             $this->view->render('login', ['err' => $e->getMessage()]);
+            return;
         } catch (\TypeError $e) {
             $this->view->render('login', ['err' => $e->getMessage()]);
         }
@@ -158,20 +197,21 @@ class WebController extends Controller
         $password = (string)$params['password'];
         $image = $_FILES['user_image'];
 
-        try{
-            $this->fileUpload($image);
+
+        try {
+            $this->fileUpload($image, self::USER_IMAGE_DIR);
             $this->userModelConn->registerUser($email, $username, $password, $image['name']);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             $this->view->render('register', ['err' => $e->getMessage()]);
+            return;
         }
 
         header('Location: /login');
         exit;
     }
 
-    public function fileUpload(array $file): void
+    public function fileUpload(array $file, string $targetDir): void
     {
-        $targetDir = '/var/www/html/src/images/users/';
         $targetFile = $targetDir . basename($file['name']);
         $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
 
@@ -181,16 +221,15 @@ class WebController extends Controller
         }
 
         if (file_exists($targetFile)) {
-            throw new \Exception('Sorry, file already exists.');
+            throw new \Exception('Sorry, some file are already exists.');
         }
 
-        if ($file['size'] > 500000) {
+        if ($file['size'] > 5000000) {
             throw new \Exception('Sorry, your file is too large.');
         }
         if (!move_uploaded_file($file['tmp_name'], $targetFile)) {
             throw new \Exception('Sorry, there was an error uploading your file.');
         }
-
     }
 
     public function logout(): void
