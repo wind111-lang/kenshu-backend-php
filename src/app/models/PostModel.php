@@ -27,7 +27,7 @@ class PostModel extends Model
 
     public function getLatestId(): array
     {
-        $stmt = $this->db->prepare('SELECT id FROM posts DESC LIMIT 1');
+        $stmt = $this->db->prepare('SELECT id FROM posts ORDER BY id DESC LIMIT 1');
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
