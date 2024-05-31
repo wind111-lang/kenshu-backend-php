@@ -25,6 +25,13 @@ class PostModel extends Model
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getLatestId(): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM posts ORDER BY id DESC LIMIT 1');
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function sendPost(string $title, string $body, int $user_id): void
     {
         $datetime = date("Y-m-d H:i:s", time());
@@ -68,6 +75,14 @@ class PostModel extends Model
         $stmt->bindParam(':title', $title, \PDO::PARAM_STR);
         $stmt->bindParam(':body', $body, \PDO::PARAM_STR);
         $stmt->execute();
+    }
+
+    public function getThumbImageFromPostId(int $id): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM thumb_image WHERE post_id = :post_id');
+        $stmt->bindParam(':post_id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getPostImageFromPostId(int $id): array

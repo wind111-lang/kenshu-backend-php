@@ -11,6 +11,11 @@ class WebController extends Controller
     private $postModelConn;
     private $userModelConn;
 
+    const POST_IMAGE_DIR = '/var/www/html/src/images/posts/post/';
+    const THUMB_IMAGE_DIR = '/var/www/html/src/images/posts/thumb/';
+    const USER_IMAGE_DIR = '/var/www/html/src/images/users/';
+
+
     //TODO: 遷移処理
     public function __construct()
     {
@@ -38,34 +43,35 @@ class WebController extends Controller
         $postImages = $_FILES['post_images'];
         $thumbImage = $_FILES['thumb_image'];
 
-        $targetPostDir = '/var/www/html/src/images/posts/post/';
-        $targetThumbDir = '/var/www/html/src/images/posts/thumb/';
-
         try {
             $user = $this->userModelConn->getUserByName($_SESSION['username']);
             $this->postModelConn->sendPost($title, $body, $user['id']);
 
-            $posts = $this->postModelConn->getPost();
+            $post = $this->postModelConn->getLatestId();
 
-            if (isset($posts['id'])) {
-                $postId = end($posts)['id'];
-            } else {
+            if($post){
+                $postId = $post['id'];
+            }else{
                 $postId = 1;
             }
 
-            $this->fileUpload($thumbImage, $targetThumbDir);
+
+            $this->fileUpload($thumbImage, self::THUMB_IMAGE_DIR);
             $this->postModelConn->sendThumbImage($postId, $thumbImage['name']);
 
-            foreach ($postImages['name'] as $index => $postImage) {
+
+            $postCount = count($_FILES['post_images']['name']);
+
+            for ($image=0; $image < $postCount; $image++) {
                 $file = [
-                    'name' => $postImages['name'][$index],
-                    'type' => $postImages['type'][$index],
-                    'tmp_name' => $postImages['tmp_name'][$index],
-                    'error' => $postImages['error'][$index],
-                    'size' => $postImages['size'][$index],
+                    'name' => $postImages['name'][$image],
+                    'type' => $postImages['type'][$image],
+                    'tmp_name' => $postImages['tmp_name'][$image],
+                    'error' => $postImages['error'][$image],
+                    'size' => $postImages['size'][$image],
                 ];
 
-                $this->fileUpload($file, $targetPostDir);
+                $this->fileUpload($file, self::POST_IMAGE_DIR);
                 $this->postModelConn->sendPostImage($postId, $file['name']);
             }
 
@@ -88,8 +94,9 @@ class WebController extends Controller
                 $post = $this->postModelConn->getPostById($postId);
                 if ($post) {
                     $user = $this->userModelConn->getUserById($post['user_id']);
+                    $thumb = $this->postModelConn->getThumbImageFromPostId($postId);
                     $images = $this->postModelConn->getPostImageFromPostId($postId);
-                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user, 'images' => $images]);
+                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user, 'thumb' => $thumb, 'images' => $images]);
                 } else {
                     throw new \UnexpectedValueException('Invalid post ID');
                 }
@@ -191,10 +198,9 @@ class WebController extends Controller
         $password = (string)$params['password'];
         $image = $_FILES['user_image'];
 
-        $targetDir = '/var/www/html/src/images/users/';
 
         try {
-            $this->fileUpload($image, $targetDir);
+            $this->fileUpload($image, self::USER_IMAGE_DIR);
             $this->userModelConn->registerUser($email, $username, $password, $image['name']);
         } catch (\Exception $e) {
             $this->view->render('register', ['err' => $e->getMessage()]);
