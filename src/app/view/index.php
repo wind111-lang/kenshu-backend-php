@@ -53,8 +53,13 @@
                     <input type="submit" value="削除">
                 </form>
             <?php endif; ?>
+            <br>
             <h3>
-                <a href="/postDetail?post_id=<?php echo htmlspecialchars($post['id']); ?>"><?php echo htmlspecialchars($post['title']) ?></a>
+                <a href="/postDetail?post_id=<?php echo htmlspecialchars($post['id']); ?>">
+                    <?php echo htmlspecialchars($post['title']) ?><br>
+                    <img src="<?php echo "/src/images/posts/thumb/" . htmlspecialchars($post['thumb_url']) ?>"
+                         alt="<?php echo $post['title'] ?>" width="200px" height="200px">
+                </a>
             </h3>
         </li>
     <?php endforeach; ?>

@@ -38,14 +38,25 @@ class WebController extends Controller
         $postImages = $_FILES['post_images'];
         $thumbImage = $_FILES['thumb_image'];
 
-        $targetPostDir = '/var/www/html/src/images/posts/post';
-        $targetThumbDir = '/var/www/html/src/images/posts/thumb';
-
-        $uploadedPostImages = [];
+        $targetPostDir = '/var/www/html/src/images/posts/post/';
+        $targetThumbDir = '/var/www/html/src/images/posts/thumb/';
 
         try {
-            foreach ($postImages['name'] as $index => $postImage) {
+            $user = $this->userModelConn->getUserByName($_SESSION['username']);
+            $this->postModelConn->sendPost($title, $body, $user['id']);
 
+            $posts = $this->postModelConn->getPost();
+
+            if (isset($posts['id'])) {
+                $postId = end($posts)['id'];
+            } else {
+                $postId = 1;
+            }
+
+            $this->fileUpload($thumbImage, $targetThumbDir);
+            $this->postModelConn->sendThumbImage($postId, $thumbImage['name']);
+
+            foreach ($postImages['name'] as $index => $postImage) {
                 $file = [
                     'name' => $postImages['name'][$index],
                     'type' => $postImages['type'][$index],
@@ -53,14 +64,10 @@ class WebController extends Controller
                     'error' => $postImages['error'][$index],
                     'size' => $postImages['size'][$index],
                 ];
+
                 $this->fileUpload($file, $targetPostDir);
-                $uploadedPostImages[] = $file['name'];
+                $this->postModelConn->sendPostImage($postId, $file['name']);
             }
-
-            $this->fileUpload($thumbImage, $targetThumbDir);
-
-            $user = $this->userModelConn->getUserByName($_SESSION['username']);
-            $this->postModelConn->sendPost($title, $body, $user['id'], $thumbImage['name'], $uploadedPostImages);
 
         } catch (\Exception $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
@@ -81,12 +88,13 @@ class WebController extends Controller
                 $post = $this->postModelConn->getPostById($postId);
                 if ($post) {
                     $user = $this->userModelConn->getUserById($post['user_id']);
-                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user]);
+                    $images = $this->postModelConn->getPostImageFromPostId($postId);
+                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user, 'images' => $images]);
                 } else {
                     throw new \UnexpectedValueException('Invalid post ID');
                 }
             } else {
-                throw new \UnexpectedValueException('Invalid post ID');
+                throw new \UnexpectedValueException('post ID is not set');
             }
         } catch (\Exception $e) {
             $this->view->render('postDetail', ['err' => $e->getMessage()]);
@@ -130,6 +138,7 @@ class WebController extends Controller
             $this->postModelConn->updatePost($postId, $title, $body);
         } catch (\UnexpectedValueException $e) {
             $this->view->render('postUpdate', ['err' => $e->getMessage()]);
+            return;
         }
 
         header('Location: ' . '/postDetail?post_id=' . $postId);
@@ -184,10 +193,10 @@ class WebController extends Controller
 
         $targetDir = '/var/www/html/src/images/users/';
 
-        try{
+        try {
             $this->fileUpload($image, $targetDir);
             $this->userModelConn->registerUser($email, $username, $password, $image['name']);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             $this->view->render('register', ['err' => $e->getMessage()]);
             return;
         }
@@ -207,7 +216,7 @@ class WebController extends Controller
         }
 
         if (file_exists($targetFile)) {
-            throw new \Exception('Sorry, file already exists.');
+            throw new \Exception('Sorry, some file are already exists.');
         }
 
         if ($file['size'] > 5000000) {

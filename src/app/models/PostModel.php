@@ -12,7 +12,7 @@ class PostModel extends Model
     //TODO: DB制御
     public function getPost(): array
     {
-        $stmt = $this->db->prepare('SELECT * FROM posts ORDER BY updated_at DESC');
+        $stmt = $this->db->prepare('SELECT * FROM posts INNER JOIN thumb_image ON posts.id = thumb_image.post_id ORDER BY updated_at DESC');
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -37,7 +37,6 @@ class PostModel extends Model
         $stmt->bindParam(':title', $title, \PDO::PARAM_STR);
         $stmt->bindParam(':body', $body, \PDO::PARAM_STR);
         $stmt->execute();
-
     }
 
     public function deletePost(array $post): void
@@ -68,6 +67,30 @@ class PostModel extends Model
         $stmt->bindParam(':updated_at', $datetime, \PDO::PARAM_STR);
         $stmt->bindParam(':title', $title, \PDO::PARAM_STR);
         $stmt->bindParam(':body', $body, \PDO::PARAM_STR);
+        $stmt->execute();
+    }
+
+    public function getPostImageFromPostId(int $id): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM post_images WHERE post_id = :post_id');
+        $stmt->bindParam(':post_id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function sendPostImage(int $id, string $image): void
+    {
+        $stmt = $this->db->prepare('INSERT INTO post_images (post_id, img_url) VALUES (:post_id, :img_url)');
+        $stmt->bindParam(':post_id', $id, \PDO::PARAM_INT);
+        $stmt->bindParam(':img_url', $image, \PDO::PARAM_STR);
+        $stmt->execute();
+    }
+
+    public function sendThumbImage(int $id, string $thumb): void
+    {
+        $stmt = $this->db->prepare('INSERT INTO thumb_image (post_id, thumb_url) VALUES (:post_id, :thumb_url)');
+        $stmt->bindParam(':post_id', $id, \PDO::PARAM_INT);
+        $stmt->bindParam(':thumb_url', $thumb, \PDO::PARAM_STR);
         $stmt->execute();
     }
 }

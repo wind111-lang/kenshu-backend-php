@@ -20,6 +20,11 @@
         <?php echo "ユーザ名: " . htmlspecialchars($user['username']); ?>
         <h3><?php echo "タイトル: " . htmlspecialchars($post['title']); ?></h3>
         <p><?php echo "本文: " . htmlspecialchars($post['body']); ?></p>
+        <?php foreach ($images as $postImage): ?>
+            <img src="<?php echo "/src/images/posts/post/" . htmlspecialchars($postImage['img_url']) ?>"
+                 alt="<?php echo $postImage['img_url'] ?>" width="150px" height="150px">
+        <?php endforeach; ?>
+        <br>
         <?php if (isset($_SESSION['username']) && $_SESSION['username'] == $user['username']): ?>
             <button type="button"
                     onclick="location.href='/postUpdate?post_id=<?php echo htmlspecialchars($post['id']); ?>'">編集
