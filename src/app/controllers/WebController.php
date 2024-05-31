@@ -48,7 +48,7 @@ class WebController extends Controller
 
             $post = $this->postModelConn->getLatestId();
 
-            if($post){
+            if($post['id']){
                 $postId = $post['id'];
             }else{
                 $postId = 1;
