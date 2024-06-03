@@ -29,9 +29,6 @@ class WebController extends Controller
             $posts = $this->postModelConn->getPost();
             $users = $this->userModelConn->getUser();
             $tags = $this->postModelConn->getTag();
-
-            print_r($tags);
-
         } catch (\UnexpectedValueException $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
         }
