@@ -7,7 +7,7 @@
 
 <?php if (isset($_SESSION['username'])): ?>
     <?php echo htmlspecialchars($_SESSION['username']) . "さん, ようこそ!"; ?>
-    <a href="/logout">ログアウト</a>
+    <form action="/logout" method="get"><input type="submit" value="ログアウト"></form>
     <br>
     <form action="/post" method="post" enctype="multipart/form-data">
         <label for="title">タイトル</label>
@@ -42,8 +42,8 @@
         <input type="submit" value="Submit">
     </form>
 <?php else: ?>
-    <a href="/login">ログイン</a>
-    <a href="/register">新規登録</a>
+    <form action="/login" method="get"><input type="submit" value="ログイン"></form>
+    <form action="/register" method="get"><input type="submit" value="新規登録"></form>
 <?php endif; ?>
 <?php if (isset($err)): ?>
     <p><?php echo $err; ?></p>
@@ -78,6 +78,12 @@
                              alt="<?php echo $post['title'] ?>" width="200px" height="200px">
                     </a>
                 </h3>
+                <p>タグ:</p>
+                <?php foreach ($tags as $tag): ?>
+                    <?php if ($tag['post_id'] == $post['id']): ?>
+                        <?php echo htmlspecialchars($tag['tag']); ?>
+                    <?php endif; ?>
+                <?php endforeach; ?>
             </li>
         <?php endforeach; ?>
     <?php endif; ?>

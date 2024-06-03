@@ -48,7 +48,23 @@ CREATE TABLE "post_images" (
                                "img_url" text
 );
 
+CREATE TABLE "tags" (
+                       "id" SERIAL PRIMARY KEY,
+                       "tag" varchar(255)
+);
+
+CREATE TABLE "post_selected_tags" (
+                            "id" SERIAL PRIMARY KEY,
+                            "post_id" integer,
+                            "tag_id" integer
+);
+
+INSERT INTO "tags" ("tag") VALUES ('総合'), ('テクノロジー'), ('モバイル'), ('アプリ'),
+                                  ('エンタメ'), ('ビューティー'), ('ファッション'),
+                                  ('ライフスタイル'), ('ビジネス'), ('グルメ'), ('スポーツ');
+
 ALTER TABLE "posts" ADD FOREIGN KEY ("user_id") REFERENCES "userinfo" ("id");
 ALTER TABLE "thumb_image" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
 ALTER TABLE "post_images" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
-ALTER TABLE "posts" ADD FOREIGN KEY ("user_id") REFERENCES "userinfo" ("id");
+ALTER TABLE "post_selected_tags" ADD FOREIGN KEY ("post_id") REFERENCES "posts" ("id");
+ALTER TABLE "post_selected_tags" ADD FOREIGN KEY ("tag_id") REFERENCES "tags" ("id");

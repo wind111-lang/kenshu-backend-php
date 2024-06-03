@@ -21,10 +21,16 @@
         <h3><?php echo "タイトル: " . htmlspecialchars($post['title']); ?></h3>
         <img src="<?php echo "/src/images/posts/thumb/" . htmlspecialchars($thumb['thumb_url']); ?>"
              alt="<?php echo $thumb['thumb_url'] ?>" width="200px" height="200px">
+        <br>
         <p><?php echo "本文: " . htmlspecialchars($post['body']); ?></p>
         <?php foreach ($images as $postImage): ?>
             <img src="<?php echo "/src/images/posts/post/" . htmlspecialchars($postImage['img_url']); ?>"
                  alt="<?php echo $postImage['img_url'] ?>" width="150px" height="150px">
+        <?php endforeach; ?>
+        <br>
+        <p>タグ:</p>
+        <?php foreach ($tags as $tag): ?>
+            <?php echo htmlspecialchars($tag['tag']); ?>
         <?php endforeach; ?>
         <br>
         <?php if (isset($_SESSION['username']) && $_SESSION['username'] == $user['username']): ?>
