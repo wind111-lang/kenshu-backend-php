@@ -116,4 +116,35 @@ class PostModel extends Model
         $stmt->bindParam(':thumb_url', $thumb, \PDO::PARAM_STR);
         $stmt->execute();
     }
+
+    public function getTag(): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM post_selected_tags INNER JOIN tags ON post_selected_tags.tag_id = tags.id ORDER BY post_id');
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getTagIdFromName(string $tag): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM tags WHERE tag = :tag');
+        $stmt->bindParam(':tag', $tag, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getTagNameFromPostId(int $id): array
+    {
+        $stmt = $this->db->prepare('SELECT * FROM post_selected_tags INNER JOIN tags ON post_selected_tags.tag_id = tags.id WHERE post_id = :post_id');
+        $stmt->bindParam(':post_id', $id, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function sendSelectedTag(int $id, int $tag): void
+    {
+        $stmt = $this->db->prepare('INSERT INTO post_selected_tags (post_id, tag_id) VALUES (:post_id, :tag_id)');
+        $stmt->bindParam(':post_id', $id, \PDO::PARAM_INT);
+        $stmt->bindParam(':tag_id', $tag, \PDO::PARAM_INT);
+        $stmt->execute();
+    }
 }

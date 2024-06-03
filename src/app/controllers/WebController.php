@@ -28,11 +28,12 @@ class WebController extends Controller
         try {
             $posts = $this->postModelConn->getPost();
             $users = $this->userModelConn->getUser();
+            $tags = $this->postModelConn->getTag();
         } catch (\UnexpectedValueException $e) {
             $this->view->render('index', ['err' => $e->getMessage()]);
         }
 
-        $this->view->render('index', ['posts' => $posts, 'users' => $users]);
+        $this->view->render('index', ['posts' => $posts, 'users' => $users, 'tags' => $tags]);
     }
 
     public function post(array $params): void
@@ -41,8 +42,10 @@ class WebController extends Controller
         $body = (string)$params['body'];
         $postImages = $_FILES['post_images'];
         $thumbImage = $_FILES['thumb_image'];
+        $selectedTags = (array)$params['tags'];
 
         try {
+
             $user = $this->userModelConn->getUserByName($_SESSION['username']);
             $this->postModelConn->sendPost($title, $body, $user['id']);
 
@@ -52,6 +55,12 @@ class WebController extends Controller
                 $postId = $post['id'];
             }else{
                 $postId = 1;
+            }
+
+
+            for($tag = 0; $tag < count($selectedTags); $tag++){
+                $tagInfo = $this->postModelConn->getTagIdFromName($selectedTags[$tag]);
+                $this->postModelConn->sendSelectedTag($postId, $tagInfo['id']);
             }
 
 
@@ -95,7 +104,9 @@ class WebController extends Controller
                     $user = $this->userModelConn->getUserById($post['user_id']);
                     $thumb = $this->postModelConn->getThumbImageFromPostId($postId);
                     $images = $this->postModelConn->getPostImageFromPostId($postId);
-                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user, 'thumb' => $thumb, 'images' => $images]);
+                    $tags = $this->postModelConn->getTagNameFromPostId($postId);
+
+                    $this->view->render('postDetail', ['post' => $post, 'post_id' => $postId, 'user' => $user, 'thumb' => $thumb, 'images' => $images, 'tags' => $tags]);
                 } else {
                     throw new \UnexpectedValueException('Invalid post ID');
                 }
@@ -170,7 +181,7 @@ class WebController extends Controller
                 $_SESSION['username'] = $loginInfo['username'];
                 setcookie('username', $loginInfo['username'],
                     [
-                        'expires' => 0,
+                        'expires' => 3600,
                         'path' => '/',
                         'samesite' => 'lax',
                         'secure' => true,
